@@ -139,7 +139,7 @@ For instance:
 This will disable the button if there are no objects in the current scene.  
 After this line, simply follow with any python code you wish: other comments, imports, functions, classes, or just a list of commands.  
 
-Script Shortcut will also call the register function ('def register():') if it is defined in the python file before executing the script, you will not need to call it in the code itself.  
+Script Shortcut will also call the register function (`def register():`) if it is defined in the python file before executing the script, you will not need to call it in the code itself.  
 See the 'test.py' file in the buttons directory for some example code.  
 
 

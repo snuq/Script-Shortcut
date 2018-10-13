@@ -126,6 +126,10 @@ Set up your panels with your favorite default buttons in a blank startup file, t
 If you created multiple presets, a 'Panel Presets' drop-down menu will be visible at the top of the panel.  Select a preset from this menu to load it into the panel.  
 Now, simply click one of the buttons to activate the script behind it.  
 
+You may call a popup version of the panel in any Blender area that has a panel enabled by pressing Ctrl-Shift-Space.  
+
+You may directly activate each button of the panel by pressing Ctrl-Shift-'Number Key'. Ctrl-Shift-1 will activate the top button, Ctrl-Shift-2 the second button, etc... up to Ctrl-Shift-0 for button 10.  
+
 
 
 # Creating Your Own Scripts:
@@ -159,5 +163,5 @@ See the 'test.py' file in the buttons directory for some example code.
 
 ### 0.6
    * Cleaned up code
-   * Added ability to call buttons with Ctrl-Shift-<Number Key>
+   * Added ability to call buttons with Ctrl-Shift-
    * When creating a new button, the filename is first used for the title, then user is asked to rename

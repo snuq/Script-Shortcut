@@ -1,6 +1,6 @@
 # Script Shortcut Addon For Blender
 
-##Features:
+## Features:
 * Easily load python scripts as a button in Blender's interface
 * Set up individual custom panels for each type of blender area
 * Add as many buttons as you like
@@ -23,7 +23,7 @@ Or support me by hiring Creative Life Productions if you have a need for the ser
 
 
 
-## Installation
+# Installation:
 * Download 'ScriptShortcut.py', or download the master zip and extract this file.  
 * Open Blender, and from the 'File' menu, select 'User Preferences'.
 * In this new window, click on the 'Add-ons' tab at the top.
@@ -35,8 +35,8 @@ Or support me by hiring Creative Life Productions if you have a need for the ser
 
 
 
-## Editing The Panel
-You will need at least one python script, these can be downloaded from the 'buttons' directory above, or found anywhere.  
+# Editing The Panel:
+You will need at least one python script, these can be downloaded from the 'buttons' directory above, or found anywhere python scripts are found.  
 Any python script that can be run in Blender should work as a button, but be careful with scripts that are designed as an addon, running them multiple times may cause menus or button panels to appear multiple times.  
 
 The 'Script Shortcuts' panel will start out as empty, with only an 'Edit' checkbox showing, clicking this will switch the panel to edit mode.  
@@ -96,11 +96,11 @@ You are now free to clear the current panel and create a new setup.
 Be sure to save each new panel setup as a preset, the current panel will be overwritten when a preset is selected!  
 
 
-### Clear The Panel
+### Clear The Panel:
 Click the 'Clear' button to remove all current buttons, labels and spacers.  The panel presets will not be affected.
 
 
-### Save The Panel Layout
+### Save The Panel Layout:
 Save the current buttons, labels and spacers to an external file for access later.  
 Other panel presets are not saved.  
 Click the 'Save' button to open a file browser.  
@@ -109,7 +109,7 @@ Click the 'Save' button to open a file browser.
 * Click 'Save Layout' to write the file.
 
 
-### Load A Panel Layout
+### Load A Panel Layout:
 Load a panel preset file by clicking the 'Load' button.  
 Be careful not to accidentally load a file that is not a layout, a lot of garbage buttons can be created!  
 Loading a layout will completely replace the current button layout.  
@@ -119,7 +119,7 @@ A file browser will open.
 
 
 
-## Using The Panel
+# Using The Panel:
 Once you have the panel set up the way you like it, be sure to save your .blend file.  
 Set up your panels with your favorite default buttons in a blank startup file, then in the file menu, click 'Save Startup File' to have these buttons on every new blender file.  
 
@@ -128,13 +128,13 @@ Now, simply click one of the buttons to activate the script behind it.
 
 
 
-## Creating Your Own Scripts
+# Creating Your Own Scripts:
 If you don't know any python, it is far too complex of a subject to cover here.  Read a book on learning python 3, check out Blender's python api documentation, and learn from the many great addons that have been released for Blender.  
 However, if you know some python, creating your own buttons can be easy and fun.  
 
 The only non-standard element of a button script is the first line - If the first line of the script is a comment, it can be evaluated as a true-false statement that will disable the button if it is false.  
 For instance:  
-    #len(bpy.context.scene.objects) > 0  
+`#len(bpy.context.scene.objects) > 0`  
 
 This will disable the button if there are no objects in the current scene.  
 After this line, simply follow with any python code you wish: other comments, imports, functions, classes, or just a list of commands.  
@@ -144,7 +144,7 @@ See the 'test.py' file in the buttons directory for some example code.
 
 
 
-# Changelog
+# Changelog:
 ### 0.3
    * Initial Release
 

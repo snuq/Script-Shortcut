@@ -153,7 +153,7 @@ See the 'test.py' file in the buttons directory for some example code.
    * Initial Release
 
 ### 0.4
-   * Added popup menu with the shortcut ctrl-shift-space that pops up the current panel for an area
+   * Added popup menu with the shortcut Ctrl-Shift-Space that pops up the current panel for an area
    * Added a change script button to the button editor dialog
    * Implemented stored panel presets through a drop-down menu
 
@@ -163,5 +163,5 @@ See the 'test.py' file in the buttons directory for some example code.
 
 ### 0.6
    * Cleaned up code
-   * Added ability to call buttons with Ctrl-Shift-
+   * Added ability to call buttons with Ctrl-Shift-'Number Key'
    * When creating a new button, the filename is first used for the title, then user is asked to rename

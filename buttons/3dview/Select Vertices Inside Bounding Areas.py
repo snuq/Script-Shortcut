@@ -2,7 +2,10 @@
 #More than two objects must be selected for this to work, an active object must be selected as well.
 #Many objects may be selected, they will all be applied to the selection.
 #This script will get the bounding areas of the non-active selected objects, and select all vertices within the active object that are in those ranges.
+
 import bpy
+
+
 bpy.ops.object.mode_set(mode="EDIT")
 bpy.ops.mesh.select_all(action = 'DESELECT')
 bpy.ops.object.mode_set(mode="OBJECT")

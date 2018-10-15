@@ -1,6 +1,7 @@
 #hasattr(bpy.context.scene.sequence_editor, 'active_strip')
 import bpy
 
+
 def get_source(strip):
     if strip.type == 'MOVIE':
         source = strip.filepath
@@ -16,6 +17,7 @@ def get_source(strip):
     else:
         source = None
     return source
+
 
 sequencer = bpy.context.scene.sequence_editor
 if len(sequencer.meta_stack) > 0:

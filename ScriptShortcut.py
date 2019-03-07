@@ -35,6 +35,9 @@ Changelog:
     Cleaned up code
     Added ability to call buttons with Ctrl-Shift-<Number Key>
     When creating a new button, the filename is first used for the title, then user is asked to rename
+
+0.6.1
+    Ported to Blender 2.8
 """
 
 
@@ -76,8 +79,6 @@ def return_panel(scene, panel):
         return [scene.scriptshortcuts.TEXT_EDITORedit, scene.scriptshortcuts.TEXT_EDITOR, scene.scriptshortcuts.TEXT_EDITORpresets]
     if panel == 'NODE_EDITOR':
         return [scene.scriptshortcuts.NODE_EDITORedit, scene.scriptshortcuts.NODE_EDITOR, scene.scriptshortcuts.NODE_EDITORpresets]
-    if panel == 'LOGIC_EDITOR':
-        return [scene.scriptshortcuts.LOGIC_EDITORedit, scene.scriptshortcuts.LOGIC_EDITOR, scene.scriptshortcuts.LOGIC_EDITORpresets]
     else:
         return [False, [], []]
 
@@ -86,58 +87,55 @@ class ScriptShortcutPanelButton(bpy.types.PropertyGroup):
     #This class stores the data for a panel element
 
     #The button name
-    title = bpy.props.StringProperty(
+    title: bpy.props.StringProperty(
         name="Button Title",
         default="Button")
     #The script that will be run when the button is activated
-    script = bpy.props.StringProperty(
+    script: bpy.props.StringProperty(
         name="Script File",
         default="")
     #Determine if this button is conditional or not
-    conditional = bpy.props.BoolProperty(
+    conditional: bpy.props.BoolProperty(
         name="Conditional Enabled",
         description="Make This Button A Conditional Button",
         default=False)
     #A string that contains the conditional check statement for this button
-    requirement = bpy.props.StringProperty(
+    requirement: bpy.props.StringProperty(
         name="Conditional Requirement",
         default="")
 
 
 class ScriptShortcutPanel(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty("")
-    panel = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    name: bpy.props.StringProperty("")
+    panel: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
 
 
 class ScriptShortcutPanels(bpy.types.PropertyGroup):
     #Class that stores the data for all the panel elements
-    VIEW_3D = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    VIEW_3Dpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    VIEW_3Dedit = bpy.props.BoolProperty(default=False)
-    GRAPH_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    GRAPH_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    GRAPH_EDITORedit = bpy.props.BoolProperty(default=False)
-    NLA_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    NLA_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    NLA_EDITORedit = bpy.props.BoolProperty(default=False)
-    IMAGE_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    IMAGE_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    IMAGE_EDITORedit = bpy.props.BoolProperty(default=False)
-    SEQUENCE_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    SEQUENCE_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    SEQUENCE_EDITORedit = bpy.props.BoolProperty(default=False)
-    CLIP_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    CLIP_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    CLIP_EDITORedit = bpy.props.BoolProperty(default=False)
-    TEXT_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    TEXT_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    TEXT_EDITORedit = bpy.props.BoolProperty(default=False)
-    NODE_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    NODE_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    NODE_EDITORedit = bpy.props.BoolProperty(default=False)
-    LOGIC_EDITOR = bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
-    LOGIC_EDITORpresets = bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    LOGIC_EDITORedit = bpy.props.BoolProperty(default=False)
+    VIEW_3D: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    VIEW_3Dpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    VIEW_3Dedit: bpy.props.BoolProperty(default=False)
+    GRAPH_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    GRAPH_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    GRAPH_EDITORedit: bpy.props.BoolProperty(default=False)
+    NLA_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    NLA_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    NLA_EDITORedit: bpy.props.BoolProperty(default=False)
+    IMAGE_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    IMAGE_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    IMAGE_EDITORedit: bpy.props.BoolProperty(default=False)
+    SEQUENCE_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    SEQUENCE_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    SEQUENCE_EDITORedit: bpy.props.BoolProperty(default=False)
+    CLIP_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    CLIP_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    CLIP_EDITORedit: bpy.props.BoolProperty(default=False)
+    TEXT_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    TEXT_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    TEXT_EDITORedit: bpy.props.BoolProperty(default=False)
+    NODE_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
+    NODE_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
+    NODE_EDITORedit: bpy.props.BoolProperty(default=False)
 
 
 class ScriptShortcutSave(bpy.types.Operator, ImportHelper):
@@ -148,9 +146,9 @@ class ScriptShortcutSave(bpy.types.Operator, ImportHelper):
     bl_label = "Save Layout"
     bl_description = "Save this layout"
 
-    panel = bpy.props.StringProperty(options={'HIDDEN'})
-    title = bpy.props.StringProperty(name='Title', options={'HIDDEN'})
-    filepath = bpy.props.StringProperty()
+    panel: bpy.props.StringProperty(options={'HIDDEN'})
+    title: bpy.props.StringProperty(name='Title', options={'HIDDEN'})
+    filepath: bpy.props.StringProperty()
 
     def execute(self, context):
         #Get the panel data
@@ -174,9 +172,9 @@ class ScriptShortcutLoad(bpy.types.Operator, ImportHelper):
     bl_label = "Load Layout"
     bl_description = "Load this layout"
 
-    panel = bpy.props.StringProperty(options={'HIDDEN'})
-    title = bpy.props.StringProperty(name='Title', options={'HIDDEN'})
-    filepath = bpy.props.StringProperty()
+    panel: bpy.props.StringProperty(options={'HIDDEN'})
+    title: bpy.props.StringProperty(name='Title', options={'HIDDEN'})
+    filepath: bpy.props.StringProperty()
 
     def execute(self, context):
         try:
@@ -227,7 +225,7 @@ class ScriptShortcutClear(bpy.types.Operator):
     bl_label = "Clear Layout"
     bl_description = "Clear this layout"
 
-    panel = bpy.props.StringProperty()    
+    panel: bpy.props.StringProperty()
 
     def execute(self, context):
         self.data = return_panel(context.scene, self.panel)[1]
@@ -241,7 +239,7 @@ class ScriptShortcutMove(bpy.types.Operator):
     bl_label = "Move Shortcut"
     bl_description = "Move this item"
 
-    argument = bpy.props.StringProperty()
+    argument: bpy.props.StringProperty()
 
     def execute(self, context):
         panel = self.argument.split(',')[0]
@@ -262,7 +260,7 @@ class ScriptShortcutRun(bpy.types.Operator):
     bl_label = "Run Script"
     bl_description = "Run a python script"
 
-    path = bpy.props.StringProperty()
+    path: bpy.props.StringProperty()
 
     def execute(self, context):
         try:
@@ -291,10 +289,10 @@ class ScriptShortcutRename(bpy.types.Operator):
     bl_label = "Rename Button Or Label"
     bl_description = "Rename this item"
 
-    argument = bpy.props.StringProperty()
-    title = bpy.props.StringProperty(name='Title')
-    script = bpy.props.StringProperty()
-    index = bpy.props.IntProperty(0)
+    argument: bpy.props.StringProperty()
+    title: bpy.props.StringProperty(name='Title')
+    script: bpy.props.StringProperty()
+    index: bpy.props.IntProperty(0)
 
     def invoke(self, context, event):
         self.index = int(self.argument.split(',')[1])
@@ -322,15 +320,15 @@ class ScriptShortcutChangeScript(bpy.types.Operator, ImportHelper):
     bl_idname = "scriptshortcut.changescript"
     bl_label = "Select A Script For Script Shortcut"
 
-    argument = bpy.props.StringProperty(options={'HIDDEN'})
-    index = bpy.props.IntProperty(options={'HIDDEN'})
-    panel = bpy.props.StringProperty(options={'HIDDEN'})
+    argument: bpy.props.StringProperty(options={'HIDDEN'})
+    index: bpy.props.IntProperty(options={'HIDDEN'})
+    panel: bpy.props.StringProperty(options={'HIDDEN'})
     filename_ext = ".py"
 
-    filter_glob = bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(
             default="*.py",
             options={'HIDDEN'})
-    directory = bpy.props.StringProperty(subtype='DIR_PATH')
+    directory: bpy.props.StringProperty(subtype='DIR_PATH')
 
     def execute(self, context):
         self.index = int(self.argument.split(',')[1])
@@ -352,10 +350,10 @@ class ScriptShortcutAdd(bpy.types.Operator):
     bl_label = "Add New Script Shortcut"
     bl_description = "Add a new item"
 
-    argument = bpy.props.StringProperty()
-    title = bpy.props.StringProperty(name='Title')
-    type = bpy.props.StringProperty()
-    panel = bpy.props.StringProperty()
+    argument: bpy.props.StringProperty()
+    title: bpy.props.StringProperty(name='Title')
+    type: bpy.props.StringProperty()
+    panel: bpy.props.StringProperty()
 
     def execute(self, context):
         if self.type == "button":
@@ -393,13 +391,13 @@ class ScriptShortcutSelectScript(bpy.types.Operator, ImportHelper):
     bl_idname = "scriptshortcut.selectscript"
     bl_label = "Select A Script For Script Shortcut"
 
-    panel = bpy.props.StringProperty(name='Panel', options={'HIDDEN'})
+    panel: bpy.props.StringProperty(name='Panel', options={'HIDDEN'})
     filename_ext = ".py"
 
-    filter_glob = bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(
             default="*.py",
             options={'HIDDEN'})
-    directory = bpy.props.StringProperty(subtype='DIR_PATH')
+    directory: bpy.props.StringProperty(subtype='DIR_PATH')
 
     def execute(self, context):
         if os.path.isfile(self.filepath):
@@ -422,7 +420,7 @@ class ScriptShortcutRemove(bpy.types.Operator):
     bl_label = "Remove A Script Shortcut"
     bl_description = "Remove this item"
 
-    argument = bpy.props.StringProperty()
+    argument: bpy.props.StringProperty()
 
     def execute(self, context):
         buttons = return_panel(context.scene, self.argument.split(',')[0])[1]
@@ -439,7 +437,7 @@ class ScriptShortcutPopup(bpy.types.Menu):
     @classmethod
     def poll(self, context):
         area_type = context.area.type
-        prefs = context.user_preferences.addons[__name__].preferences
+        prefs = context.preferences.addons[__name__].preferences
         if hasattr(prefs, area_type):
             panelon = eval("prefs."+area_type)
             return panelon
@@ -458,15 +456,15 @@ class ScriptShortcutPopup(bpy.types.Menu):
                 #This element is a label or spacer
                 if button.title == '_':
                     #This element is a spacer
-                    row.label("")
+                    row.label(text="")
                 else:
                     #This element is a label
-                    row.label(button.title)
+                    row.label(text=button.title)
 
             else:
                 #This element is a button
                 row.operator("scriptshortcut.run", text=button.title).path = button.script
-                
+
                 #Check if this button is conditional and should be disabled
                 if button.conditional and len(button.requirement) > 0:
                     #This button is in conditional mode
@@ -480,32 +478,29 @@ class ScriptShortcutPopup(bpy.types.Menu):
 
 class ScriptShortcutSettings(bpy.types.AddonPreferences):
     bl_idname = __name__
-    VIEW_3D = bpy.props.BoolProperty(
+    VIEW_3D: bpy.props.BoolProperty(
         name="Enable 3d View Panel",
         default=True)
-    GRAPH_EDITOR = bpy.props.BoolProperty(
+    GRAPH_EDITOR: bpy.props.BoolProperty(
         name="Enable Graph Editor Panel",
         default=True)
-    NLA_EDITOR = bpy.props.BoolProperty(
+    NLA_EDITOR: bpy.props.BoolProperty(
         name="Enable NLA Editor Panel",
         default=True)
-    IMAGE_EDITOR = bpy.props.BoolProperty(
+    IMAGE_EDITOR: bpy.props.BoolProperty(
         name="Enable Image Editor Panel",
         default=True)
-    SEQUENCE_EDITOR = bpy.props.BoolProperty(
+    SEQUENCE_EDITOR: bpy.props.BoolProperty(
         name="Enable Sequence Editor Panel",
         default=True)
-    CLIP_EDITOR = bpy.props.BoolProperty(
+    CLIP_EDITOR: bpy.props.BoolProperty(
         name="Enable Clip Editor Panel",
         default=True)
-    TEXT_EDITOR = bpy.props.BoolProperty(
+    TEXT_EDITOR: bpy.props.BoolProperty(
         name="Enable Text Editor Panel",
         default=True)
-    NODE_EDITOR = bpy.props.BoolProperty(
+    NODE_EDITOR: bpy.props.BoolProperty(
         name="Enable Node Editor Panel",
-        default=True)
-    LOGIC_EDITOR = bpy.props.BoolProperty(
-        name="Enable Logic Editor Panel",
         default=True)
 
     def draw(self, context):
@@ -518,13 +513,12 @@ class ScriptShortcutSettings(bpy.types.AddonPreferences):
         layout.prop(self, "CLIP_EDITOR")
         layout.prop(self, "TEXT_EDITOR")
         layout.prop(self, "NODE_EDITOR")
-        layout.prop(self, "LOGIC_EDITOR")
 
 
 class ScriptShortcutPresetsMenu(bpy.types.Menu):
     bl_idname = 'scriptshortcut.presetmenu'
     bl_label = 'List of saved presets'
-    
+
     def draw(self, context):
         layout = self.layout
         area_type = context.area.type
@@ -541,7 +535,7 @@ class ScriptShortcutPresetActivate(bpy.types.Operator):
     bl_label = "Select A Preset"
     bl_description = "Select this preset"
 
-    argument = bpy.props.StringProperty()
+    argument: bpy.props.StringProperty()
 
     def execute(self, context):
         panel = self.argument.split(',', 1)[1]
@@ -571,7 +565,7 @@ class ScriptShortcutPresetsMenuEdit(bpy.types.Menu):
         paneldata = return_panel(context.scene, area_type)
         presets = paneldata[2]
 
-        layout.label("Click A Preset To Rename")
+        layout.label(text="Click A Preset To Rename")
         split = layout.split()
         column = split.column()
         for index, preset in enumerate(presets):
@@ -587,8 +581,8 @@ class ScriptShortcutPresetAdd(bpy.types.Operator):
     bl_idname = 'scriptshortcut.presetadd'
     bl_label = 'Add a new shortcut panel preset'
 
-    panel = bpy.props.StringProperty()
-    name = bpy.props.StringProperty()
+    panel: bpy.props.StringProperty()
+    name: bpy.props.StringProperty()
 
     def invoke(self, context, event):
         self.name = "New Preset"
@@ -620,7 +614,7 @@ class ScriptShortcutPresetRemove(bpy.types.Operator):
     bl_label = "Remove A Panel Preset"
     bl_description = "Remove this preset"
 
-    argument = bpy.props.StringProperty()
+    argument: bpy.props.StringProperty()
 
     def execute(self, context):
         panel = self.argument.split(',',1)[1]
@@ -637,10 +631,10 @@ class ScriptShortcutPresetRename(bpy.types.Operator):
     bl_label = "Rename Preset"
     bl_description = "Rename this item"
 
-    argument = bpy.props.StringProperty()
-    title = bpy.props.StringProperty(name='Title')
-    panel = bpy.props.StringProperty()
-    index = bpy.props.IntProperty(0)
+    argument: bpy.props.StringProperty()
+    title: bpy.props.StringProperty(name='Title')
+    panel: bpy.props.StringProperty()
+    index: bpy.props.IntProperty(0)
 
     def invoke(self, context, event):
         self.index = int(self.argument.split(',')[0])
@@ -664,7 +658,7 @@ class ScriptShortcutShortcut(bpy.types.Operator):
     bl_idname = 'scriptshortcut.shortcut'
     bl_label = 'Run Shortcut'
 
-    number = bpy.props.IntProperty(1)
+    number: bpy.props.IntProperty(1)
 
     def execute(self, context):
         panel = context.area.type
@@ -702,7 +696,7 @@ class ScriptShortcutPanelTemplate():
 
     @classmethod
     def poll(self, context):
-        prefs = context.user_preferences.addons[__name__].preferences
+        prefs = context.preferences.addons[__name__].preferences
         if hasattr(prefs, self.bl_space_type):
             panelon = eval("prefs."+self.bl_space_type)
             return panelon
@@ -725,14 +719,14 @@ class ScriptShortcutPanelTemplate():
             row.menu('scriptshortcut.presetmenuedit', text='Panel Presets')
 
             row = layout.row()
-            row.label('Click A Button To Rename')
+            row.label(text='Click A Button To Rename')
             for index, button in enumerate(buttons):
                 #Iterate through the elements and draw each one
                 row = layout.row()
-                split = row.split(percentage=.6, align=True)
+                split = row.split(factor=.6, align=True)
                 if button.script == '_' and button.title == '_':
                     #This element is a spacer
-                    split.label("<Spacer>")
+                    split.label(text="<Spacer>")
                 else:
                     #This element is a label or button
                     split.operator("scriptshortcut.rename", text=button.title).argument = panel+','+str(index)
@@ -764,7 +758,7 @@ class ScriptShortcutPanelTemplate():
             #Save layout button
             split.operator("scriptshortcut.save", text="Save", icon="DISK_DRIVE").panel = panel
             #Load layout button
-            split.operator("scriptshortcut.load", text="Load", icon="FILESEL").panel = panel
+            split.operator("scriptshortcut.load", text="Load", icon="FILEBROWSER").panel = panel
             #Clear layout button
             split.operator("scriptshortcut.clear", text="Clear").panel = panel
 
@@ -780,10 +774,10 @@ class ScriptShortcutPanelTemplate():
                     #This element is a label or spacer
                     if button.title == '_':
                         #This element is a spacer
-                        row.label("")
+                        row.label(text="")
                     else:
                         #This element is a label
-                        row.label(button.title)
+                        row.label(text=button.title)
 
                 else:
                     #This element is a button
@@ -808,11 +802,13 @@ class ScriptShortcutPanelTemplate():
 class ScriptShortcutPanelView3d(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
+    bl_category = "View"
 
 
 class ScriptShortcutPanelGraphEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "GRAPH_EDITOR"
     bl_region_type = "UI"
+    bl_category = "View"
 
 
 class ScriptShortcutPanelNLAEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
@@ -823,11 +819,13 @@ class ScriptShortcutPanelNLAEditor(ScriptShortcutPanelTemplate, bpy.types.Panel)
 class ScriptShortcutPanelImageEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "IMAGE_EDITOR"
     bl_region_type = "UI"
+    bl_category = "Image"
 
 
 class ScriptShortcutPanelSequenceEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "SEQUENCE_EDITOR"
     bl_region_type = "UI"
+    bl_category = "Strip"
 
 
 class ScriptShortcutPanelClipEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
@@ -838,16 +836,13 @@ class ScriptShortcutPanelClipEditor(ScriptShortcutPanelTemplate, bpy.types.Panel
 class ScriptShortcutPanelTextEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "TEXT_EDITOR"
     bl_region_type = "UI"
+    bl_category = "Text"
 
 
 class ScriptShortcutPanelNodeEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "UI"
-
-
-class ScriptShortcutPanelLogicEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
-    bl_space_type = "LOGIC_EDITOR"
-    bl_region_type = "UI"
+    bl_category = "Node"
 
 
 classes = [ScriptShortcutSettings, ScriptShortcutPanelButton, ScriptShortcutPanel, ScriptShortcutPanels,
@@ -858,7 +853,7 @@ classes = [ScriptShortcutSettings, ScriptShortcutPanelButton, ScriptShortcutPane
            ScriptShortcutPresetRename, ScriptShortcutPanelView3d, ScriptShortcutPanelGraphEditor,
            ScriptShortcutPanelNLAEditor, ScriptShortcutPanelImageEditor, ScriptShortcutPanelSequenceEditor,
            ScriptShortcutPanelClipEditor, ScriptShortcutPanelTextEditor, ScriptShortcutPanelNodeEditor,
-           ScriptShortcutPanelLogicEditor, ScriptShortcutShortcut]
+           ScriptShortcutShortcut]
 
 
 def register():

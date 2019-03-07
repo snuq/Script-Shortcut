@@ -9,7 +9,7 @@ strip = sequencer.active_strip
 bpy.ops.scene.new(type='EMPTY')
 strip_scene = bpy.context.scene
 strip_scene.name = strip.name
-bpy.context.screen.scene = scene
+bpy.context.window.scene = scene
 
 strip_scene.use_nodes = True
 nodes = strip_scene.node_tree.nodes

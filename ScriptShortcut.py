@@ -48,8 +48,8 @@ bl_info = {
     "name": "Script Shortcut",
     "description": "Allows easily running of python scripts by adding a configurable shortcut panel to the Properties shelf of most areas.  Pressing a script button will execute commands directly in the script, and will run the 'register()' function if it exists.",
     "author": "Hudson Barkley (Snu)",
-    "version": (0, 6, 0),
-    "blender": (2, 79, 0),
+    "version": (0, 6, 1),
+    "blender": (2, 80, 0),
     "location": "Properties shelf in most areas, View menu in same areas, Ctrl-Shift-Space, and Ctrl-Shift-<#> shortcuts in most areas",
     "wiki_url": "none",
     "category": "User Interface"

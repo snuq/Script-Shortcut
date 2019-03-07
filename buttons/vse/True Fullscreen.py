@@ -27,7 +27,17 @@ class TrueFullscreen(bpy.types.Operator):
             override = context.copy()
             bpy.ops.screen.screen_full_area(override, use_hide_panels=True)  #This has to be delayed because if it is run in the invoke function, it crashes blender...
         if self.runs == 1:
-            bpy.ops.sequencer.view_all_preview()  #This has to be delayed because if it is run right after the screen_full_area, it crashes blender...
+            override = context.copy()
+            area = context.screen.areas[0]
+            override['area'] = area
+            override['space_data'] = area.spaces.active
+            region = None
+            for region in area.regions:
+                if region.type == 'PREVIEW':
+                    break
+            if region:
+                override['region'] = region
+                bpy.ops.sequencer.view_all_preview(override)  #This has to be delayed because if it is run right after the screen_full_area, it crashes blender...
         self.runs = self.runs + 1
         if event.type in {'RIGHTMOUSE', 'ESC'}:
             bpy.ops.wm.window_fullscreen_toggle()

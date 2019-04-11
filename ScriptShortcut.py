@@ -431,7 +431,7 @@ class ScriptShortcutRemove(bpy.types.Operator):
 
 class ScriptShortcutPopup(bpy.types.Menu):
     #This will show the current panel for the area as a popup
-    bl_idname = "scriptshortcut.popup"
+    bl_idname = "SS_MT_scriptshortcut_popup"
     bl_label = "Script Shortcut"
 
     @classmethod
@@ -516,7 +516,7 @@ class ScriptShortcutSettings(bpy.types.AddonPreferences):
 
 
 class ScriptShortcutPresetsMenu(bpy.types.Menu):
-    bl_idname = 'scriptshortcut.presetmenu'
+    bl_idname = 'SS_MT_scriptshortcut_presetmenu'
     bl_label = 'List of saved presets'
 
     def draw(self, context):
@@ -555,7 +555,7 @@ class ScriptShortcutPresetActivate(bpy.types.Operator):
 
 
 class ScriptShortcutPresetsMenuEdit(bpy.types.Menu):
-    bl_idname = 'scriptshortcut.presetmenuedit'
+    bl_idname = 'SS_MT_scriptshortcut_presetmenuedit'
     bl_label = 'List of saved presets'
 
     def draw(self, context):
@@ -716,7 +716,7 @@ class ScriptShortcutPanelTemplate():
         if editmode:
             #Draw the panel in edit mode
             row = layout.row()
-            row.menu('scriptshortcut.presetmenuedit', text='Panel Presets')
+            row.menu('SS_MT_scriptshortcut_presetmenuedit', text='Panel Presets')
 
             row = layout.row()
             row.label(text='Click A Button To Rename')
@@ -766,7 +766,7 @@ class ScriptShortcutPanelTemplate():
             #Draw the panel in normal display mode
             if len(presets) > 0:
                 row = layout.row()
-                row.menu('scriptshortcut.presetmenu', text='Panel Presets')
+                row.menu('SS_MT_scriptshortcut_presetmenu', text='Panel Presets')
             for index, button in enumerate(buttons):
                 #Iterate through the elements and draw each one
                 row = layout.row()
@@ -799,47 +799,47 @@ class ScriptShortcutPanelTemplate():
 
 
 #The following classes are definitions for each panel
-class ScriptShortcutPanelView3d(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_View3d(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "View"
 
 
-class ScriptShortcutPanelGraphEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_GraphEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "GRAPH_EDITOR"
     bl_region_type = "UI"
     bl_category = "View"
 
 
-class ScriptShortcutPanelNLAEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_NLAEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "NLA_EDITOR"
     bl_region_type = "UI"
 
 
-class ScriptShortcutPanelImageEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_ImageEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "IMAGE_EDITOR"
     bl_region_type = "UI"
     bl_category = "Image"
 
 
-class ScriptShortcutPanelSequenceEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_SequenceEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "SEQUENCE_EDITOR"
     bl_region_type = "UI"
     bl_category = "Strip"
 
 
-class ScriptShortcutPanelClipEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_ClipEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "CLIP_EDITOR"
     bl_region_type = "UI"
 
 
-class ScriptShortcutPanelTextEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_TextEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "TEXT_EDITOR"
     bl_region_type = "UI"
     bl_category = "Text"
 
 
-class ScriptShortcutPanelNodeEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
+class SCRIPTSHORTCUT_PT_NodeEditor(ScriptShortcutPanelTemplate, bpy.types.Panel):
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "UI"
     bl_category = "Node"
@@ -850,9 +850,9 @@ classes = [ScriptShortcutSettings, ScriptShortcutPanelButton, ScriptShortcutPane
            ScriptShortcutRename, ScriptShortcutChangeScript, ScriptShortcutAdd, ScriptShortcutSelectScript,
            ScriptShortcutRemove, ScriptShortcutPopup, ScriptShortcutPresetsMenu, ScriptShortcutPresetActivate,
            ScriptShortcutPresetsMenuEdit, ScriptShortcutPresetAdd, ScriptShortcutPresetRemove,
-           ScriptShortcutPresetRename, ScriptShortcutPanelView3d, ScriptShortcutPanelGraphEditor,
-           ScriptShortcutPanelNLAEditor, ScriptShortcutPanelImageEditor, ScriptShortcutPanelSequenceEditor,
-           ScriptShortcutPanelClipEditor, ScriptShortcutPanelTextEditor, ScriptShortcutPanelNodeEditor,
+           ScriptShortcutPresetRename, SCRIPTSHORTCUT_PT_View3d, SCRIPTSHORTCUT_PT_GraphEditor,
+           SCRIPTSHORTCUT_PT_NLAEditor, SCRIPTSHORTCUT_PT_ImageEditor, SCRIPTSHORTCUT_PT_SequenceEditor,
+           SCRIPTSHORTCUT_PT_ClipEditor, SCRIPTSHORTCUT_PT_TextEditor, SCRIPTSHORTCUT_PT_NodeEditor,
            ScriptShortcutShortcut]
 
 
@@ -865,7 +865,7 @@ def register():
     keymap = keymaps.new(name='Window', region_type='WINDOW', space_type='EMPTY')
     addon_keymaps.append(keymap)
     keymapitem = keymap.keymap_items.new('wm.call_menu', 'SPACE', 'PRESS', ctrl=True, shift=True)
-    keymapitem.properties.name = 'scriptshortcut.popup'
+    keymapitem.properties.name = 'SS_MT_scriptshortcut_popup'
     keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'ONE', 'PRESS', ctrl=True, shift=True)
     keymapitem.properties.number = 1
     keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'TWO', 'PRESS', ctrl=True, shift=True)

@@ -38,6 +38,7 @@ Changelog:
 
 0.6.1
     Ported to Blender 2.8
+    Changed shortcuts
 """
 
 
@@ -53,7 +54,7 @@ bl_info = {
     "author": "Hudson Barkley (Snu)",
     "version": (0, 6, 1),
     "blender": (2, 80, 0),
-    "location": "Properties shelf in most areas, View menu in same areas, Ctrl-Shift-Space, and Ctrl-Shift-<#> shortcuts in most areas",
+    "location": "Properties shelf in most areas, View menu in same areas, Alt-Space, and Alt-<#> shortcuts in most areas",
     "wiki_url": "none",
     "category": "User Interface"
 }
@@ -864,27 +865,27 @@ def register():
     keymaps = bpy.context.window_manager.keyconfigs.addon.keymaps
     keymap = keymaps.new(name='Window', region_type='WINDOW', space_type='EMPTY')
     addon_keymaps.append(keymap)
-    keymapitem = keymap.keymap_items.new('wm.call_menu', 'SPACE', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('wm.call_menu', 'SPACE', 'PRESS', alt=True)
     keymapitem.properties.name = 'SS_MT_scriptshortcut_popup'
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'ONE', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'ONE', 'PRESS', alt=True)
     keymapitem.properties.number = 1
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'TWO', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'TWO', 'PRESS', alt=True)
     keymapitem.properties.number = 2
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'THREE', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'THREE', 'PRESS', alt=True)
     keymapitem.properties.number = 3
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'FOUR', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'FOUR', 'PRESS', alt=True)
     keymapitem.properties.number = 4
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'FIVE', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'FIVE', 'PRESS', alt=True)
     keymapitem.properties.number = 5
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'SIX', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'SIX', 'PRESS', alt=True)
     keymapitem.properties.number = 6
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'SEVEN', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'SEVEN', 'PRESS', alt=True)
     keymapitem.properties.number = 7
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'EIGHT', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'EIGHT', 'PRESS', alt=True)
     keymapitem.properties.number = 8
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'NINE', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'NINE', 'PRESS', alt=True)
     keymapitem.properties.number = 9
-    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'ZERO', 'PRESS', ctrl=True, shift=True)
+    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'ZERO', 'PRESS', alt=True)
     keymapitem.properties.number = 10
 
     bpy.types.Scene.scriptshortcuts = bpy.props.PointerProperty(type=ScriptShortcutPanels)

@@ -1,5 +1,7 @@
 # Script Shortcut Addon For Blender
 
+Final Blender 2.79 version of this addon.  
+
 ## Features:
 * Easily load python scripts as a button in Blender's interface
 * Set up individual custom panels for each type of blender area

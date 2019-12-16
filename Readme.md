@@ -1,4 +1,4 @@
-# Script Shortcut Addon For Blender
+# Script Shortcut Addon For Blender 2.81
 
 ## Features:
 * Easily load python scripts as a button in Blender's interface
@@ -24,14 +24,13 @@ Or support me by hiring Creative Life Productions if you have a need for the ser
 
 
 # Installation:
-* Download 'ScriptShortcut.py', or download the master zip and extract this file.  
-* Open Blender, and from the 'File' menu, select 'User Preferences'.
-* In this new window, click on the 'Add-ons' tab at the top.
-* Click the 'Install Add-on from File...' button at the bottom of this window.
-* Browse to and select the 'ScriptShortcut.py' file, click the 'Install Add-on from File' button.
+* Use the 'Branch' menu on the upper-left to select the branch for your Blender version
+* Download the addon from the green 'Clone or download' button, and click 'Download ZIP'
+* Open Blender, and from the 'Edit' menu, select 'Preferences'.
+* In this new window, click on the "Add-ons" tab at the left.
+* Click the 'Install...' button at the top-right of this window.
+* Browse to and select the zip file you downloaded, click the 'Install Add-on' button.
 * You should now see the addon displayed in the preferences window, click the checkbox next to the name to enable it.
-* Now, below the addon information, disable or enable panels in specific Blender areas by clicking the checkbox next to the name of the area.
-* Click the 'Save User Settings' button to ensure this addon is loaded next time Blender starts.
 
 
 

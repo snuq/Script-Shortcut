@@ -1,4 +1,4 @@
-# Script Shortcut Addon For Blender
+# Script Shortcut Addon For Blender 2.80
 
 ## Features:
 * Easily load python scripts as a button in Blender's interface

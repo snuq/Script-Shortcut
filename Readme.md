@@ -26,10 +26,11 @@ Or support me by hiring Creative Life Productions if you have a need for the ser
 # Installation:
 * Use the 'Branch' menu on the upper-left to select the branch for your Blender version
 * Download 'ScriptShortcut.py', or download the latest zip and extract this file.
+* You may wish to extract the 'buttons' folder into a location where it can easily be loaded from later.
 * Open Blender, and from the 'Edit' menu, select 'Preferences'.
 * In this new window, click on the "Add-ons" tab at the left.
 * Click the 'Install...' button at the top-right of this window.
-* Browse to and select the zip file you downloaded, click the 'Install Add-on' button.
+* Browse to and select the 'ScriptShortcut.py' file you downloaded, click the 'Install Add-on' button.
 * You should now see the addon displayed in the preferences window, click the checkbox next to the name to enable it.
 
 

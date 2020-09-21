@@ -2,6 +2,7 @@ import bpy
 
 selected = bpy.context.selected_sequences
 
+
 def correct_aspect(sequence):
     #adds a transform strip to the sequence and scales the aspect ratio to square pixels
     if sequence.type not in ['IMAGE', 'MOVIE']:
@@ -43,6 +44,7 @@ def correct_aspect(sequence):
         scaley = 1
     scale_sequence.scale_start_x = scalex
     scale_sequence.scale_start_y = scaley
-    
+
+
 for sequence in selected:
     correct_aspect(sequence)

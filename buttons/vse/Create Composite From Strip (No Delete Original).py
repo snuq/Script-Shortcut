@@ -12,7 +12,7 @@ for strip in bpy.context.selected_sequences:
         if strip.type == 'MOVIE':
             filepath = strip.filepath
         elif strip.type == 'IMAGE':
-            filepath = os.path.join(strip.directory+strip.elements[0].filename)
+            filepath = os.path.join(strip.directory, strip.elements[0].filename)
         for check_clip in bpy.data.movieclips:
             if check_clip.filepath == filepath:
                 clip = check_clip

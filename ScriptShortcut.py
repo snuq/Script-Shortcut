@@ -17,31 +17,6 @@
 # ##### END GPL LICENSE BLOCK #####
 
 
-"""
-Changelog:
-0.3
-    Initial Release
-
-0.4
-    Added popup menu with the shortcut ctrl-shift-space that pops up the current panel for an area
-    Added a change script button to the button editor dialog
-    Implemented stored panel presets through a drop-down menu
-
-0.5
-    Made panel settings into addon preferences, they no longer clog up the window view menu with a settings menu
-    Resolved error messages when loading script
-
-0.6
-    Cleaned up code
-    Added ability to call buttons with Ctrl-Shift-<Number Key>
-    When creating a new button, the filename is first used for the title, then user is asked to rename
-
-0.6.1
-    Ported to Blender 2.8
-    Changed shortcuts
-"""
-
-
 import bpy
 import os
 import sys
@@ -52,7 +27,7 @@ bl_info = {
     "name": "Script Shortcut",
     "description": "Allows easily running of python scripts by adding a configurable shortcut panel to the Properties shelf of most areas.  Pressing a script button will execute commands directly in the script, and will run the 'register()' function if it exists.",
     "author": "Hudson Barkley (Snu)",
-    "version": (0, 6, 1),
+    "version": (0, 6, 2),
     "blender": (2, 81, 0),
     "location": "Properties shelf in most areas, View menu in same areas, Alt-Space, and Alt-<#> shortcuts in most areas",
     "wiki_url": "none",
@@ -301,7 +276,7 @@ class ScriptShortcutRename(bpy.types.Operator):
         self.button = buttons[self.index]
         self.title = self.button.title
         self.script = self.button.script
-        return context.window_manager.invoke_props_dialog(self, width=600, height=200)
+        return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, context):
         layout = self.layout
@@ -379,7 +354,7 @@ class ScriptShortcutAdd(bpy.types.Operator):
             return bpy.ops.scriptshortcut.selectscript('INVOKE_DEFAULT', panel=self.argument.split(',')[0])
         elif self.type == "label":
             self.title = "Label"
-            return context.window_manager.invoke_props_dialog(self, width=600, height=200)
+            return context.window_manager.invoke_props_dialog(self, width=600)
         else:
             button = buttons.add()
             button.title = '_'
@@ -587,7 +562,7 @@ class ScriptShortcutPresetAdd(bpy.types.Operator):
 
     def invoke(self, context, event):
         self.name = "New Preset"
-        return context.window_manager.invoke_props_dialog(self, width=600, height=200)
+        return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, context):
         layout = self.layout
@@ -643,7 +618,7 @@ class ScriptShortcutPresetRename(bpy.types.Operator):
         self.paneldata = return_panel(context.scene, self.panel)
         self.presets = self.paneldata[2]
         self.title = self.presets[self.index].name
-        return context.window_manager.invoke_props_dialog(self, width=600, height=200)
+        return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, context):
         layout = self.layout

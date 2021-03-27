@@ -20,21 +20,85 @@
 import bpy
 import os
 import sys
+from bpy.app.handlers import persistent
 from bpy_extras.io_utils import ImportHelper
 
+last_scene = None
+set_shortcuts_on_deps = None
+set_shortcuts_on_load = None
 
 bl_info = {
     "name": "Script Shortcut",
     "description": "Allows easily running of python scripts by adding a configurable shortcut panel to the Properties shelf of most areas.  Pressing a script button will execute commands directly in the script, and will run the 'register()' function if it exists.",
     "author": "Hudson Barkley (Snu)",
-    "version": (0, 6, 2),
-    "blender": (2, 81, 0),
+    "version": (0, 6, 3),
+    "blender": (2, 92, 0),
     "location": "Properties shelf in most areas, View menu in same areas, Alt-Space, and Alt-<#> shortcuts in most areas",
     "wiki_url": "none",
     "category": "Interface"
 }
 
-addon_keymaps = []
+script_shortcut_addon_keymaps = {}
+addon_keymap_default = None
+
+
+def set_shortcuts(self=None, context=None):
+    ss = bpy.context.scene.scriptshortcuts
+    panel_datas = [[ss.VIEW_3D, '3D View', 'VIEW_3D'], [ss.GRAPH_EDITOR, 'Graph Editor', 'GRAPH_EDITOR'], [ss.NLA_EDITOR, 'NLA Editor', 'NLA_EDITOR'], [ss.IMAGE_EDITOR, 'Image', 'IMAGE_EDITOR'], [ss.SEQUENCE_EDITOR, 'Sequencer', 'SEQUENCE_EDITOR'], [ss.SEQUENCE_EDITOR, 'SequencerPreview', 'SEQUENCE_EDITOR'], [ss.CLIP_EDITOR, 'Clip', 'CLIP_EDITOR'], [ss.TEXT_EDITOR, 'Text', 'TEXT_EDITOR'], [ss.NODE_EDITOR, 'Node Editor', 'NODE_EDITOR']]
+
+    keymaps = bpy.context.window_manager.keyconfigs.addon.keymaps
+    global script_shortcut_addon_keymaps
+    for keymap in script_shortcut_addon_keymaps.keys():
+        for keymapitem in script_shortcut_addon_keymaps[keymap]:
+            keymap.keymap_items.remove(keymapitem)
+        keymaps.remove(keymap)
+    script_shortcut_addon_keymaps = {}
+    for panel_data in panel_datas:
+        panel, keymap_name, keymap_space = panel_data
+        if len(panel) > 0:
+            keymap = None
+            for index, button in enumerate(panel):
+                if button.shortcut:
+                    if not keymap:
+                        keymap = keymaps.new(name=keymap_name, region_type='WINDOW', space_type=keymap_space)
+                        script_shortcut_addon_keymaps[keymap] = []
+                    keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', button.shortcut, 'PRESS', ctrl=button.ctrl, alt=button.alt, shift=button.shift, oskey=button.oskey)
+                    keymapitem.properties.number = index + 1
+                    script_shortcut_addon_keymaps[keymap].append(keymapitem)
+
+
+@persistent
+def set_shortcuts_trigger(scene=None):
+    scene = bpy.context.scene
+    global last_scene
+    if scene == last_scene and last_scene is not None:
+        return
+    last_scene = scene
+    set_shortcuts()
+
+
+def remove_set_shortcuts_handler(add=False):
+    global set_shortcuts_on_deps
+    global set_shortcuts_on_load
+    handlers_deps = bpy.app.handlers.depsgraph_update_post
+    handlers_load = bpy.app.handlers.load_post
+    if set_shortcuts_on_deps:
+        try:
+            handlers_deps.remove(set_shortcuts_on_deps)
+            set_shortcuts_on_deps = None
+        except:
+            pass
+    if set_shortcuts_on_load:
+        try:
+            handlers_load.remove(set_shortcuts_on_load)
+            set_shortcuts_on_load = None
+        except:
+            pass
+    if add:
+        handlers_deps.append(set_shortcuts_trigger)
+        set_shortcuts_on_deps = handlers_deps[-1]
+        handlers_load.append(set_shortcuts_trigger)
+        set_shortcuts_on_load = handlers_load[-1]
 
 
 def return_panel(scene, panel):
@@ -59,6 +123,22 @@ def return_panel(scene, panel):
         return [False, [], []]
 
 
+def format_shortcut(button):
+    shortcut = ""
+    if button.ctrl:
+        shortcut = shortcut + 'Ctrl + '
+    if button.alt:
+        shortcut = shortcut + 'Alt + '
+    if button.shift:
+        shortcut = shortcut + 'Shift + '
+    if button.oskey:
+        shortcut = shortcut + 'OSKey + '
+    shortcut = shortcut + button.shortcut
+    if not shortcut:
+        return 'None'
+    return shortcut
+
+
 class ScriptShortcutPanelButton(bpy.types.PropertyGroup):
     #This class stores the data for a panel element
 
@@ -79,6 +159,16 @@ class ScriptShortcutPanelButton(bpy.types.PropertyGroup):
     requirement: bpy.props.StringProperty(
         name="Conditional Requirement",
         default="")
+    alt: bpy.props.BoolProperty(
+        default=False)
+    ctrl: bpy.props.BoolProperty(
+        default=False)
+    shift: bpy.props.BoolProperty(
+        default=False)
+    oskey: bpy.props.BoolProperty(
+        default=False)
+    shortcut: bpy.props.StringProperty(
+        default='')
 
 
 class ScriptShortcutPanel(bpy.types.PropertyGroup):
@@ -90,28 +180,44 @@ class ScriptShortcutPanels(bpy.types.PropertyGroup):
     #Class that stores the data for all the panel elements
     VIEW_3D: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     VIEW_3Dpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    VIEW_3Dedit: bpy.props.BoolProperty(default=False)
+    VIEW_3Dedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     GRAPH_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     GRAPH_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    GRAPH_EDITORedit: bpy.props.BoolProperty(default=False)
+    GRAPH_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     NLA_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     NLA_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    NLA_EDITORedit: bpy.props.BoolProperty(default=False)
+    NLA_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     IMAGE_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     IMAGE_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    IMAGE_EDITORedit: bpy.props.BoolProperty(default=False)
+    IMAGE_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     SEQUENCE_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     SEQUENCE_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    SEQUENCE_EDITORedit: bpy.props.BoolProperty(default=False)
+    SEQUENCE_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     CLIP_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     CLIP_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    CLIP_EDITORedit: bpy.props.BoolProperty(default=False)
+    CLIP_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     TEXT_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     TEXT_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    TEXT_EDITORedit: bpy.props.BoolProperty(default=False)
+    TEXT_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
     NODE_EDITOR: bpy.props.CollectionProperty(type=ScriptShortcutPanelButton)
     NODE_EDITORpresets: bpy.props.CollectionProperty(type=ScriptShortcutPanel)
-    NODE_EDITORedit: bpy.props.BoolProperty(default=False)
+    NODE_EDITORedit: bpy.props.BoolProperty(
+        default=False,
+        update=set_shortcuts)
 
 
 class ScriptShortcutSave(bpy.types.Operator, ImportHelper):
@@ -134,6 +240,11 @@ class ScriptShortcutSave(bpy.types.Operator, ImportHelper):
             for button in self.data:
                 file.write(button.title+'\n')
                 file.write(str(button.conditional)+'\n')
+                file.write(str(button.ctrl)+'\n')
+                file.write(str(button.alt)+'\n')
+                file.write(str(button.shift)+'\n')
+                file.write(str(button.oskey)+'\n')
+                file.write(button.shortcut+'\n')
                 file.write(button.script+'\n')
             file.close()
             self.report({'INFO'}, "Saved file to: "+self.filepath)
@@ -152,7 +263,62 @@ class ScriptShortcutLoad(bpy.types.Operator, ImportHelper):
     title: bpy.props.StringProperty(name='Title', options={'HIDDEN'})
     filepath: bpy.props.StringProperty()
 
+    def to_bool(self, line):
+        if line.replace('\n', '') == 'True':
+            return True
+        else:
+            return False
+
     def execute(self, context):
+        oldpanel = return_panel(context.scene, self.panel)[1]
+        try:
+            file = open(self.filepath, "r")
+            data = file.readlines()
+            file.close()
+        except:
+            self.report({'WARNING'}, "Unable to open file: " + self.filepath)
+            return {'FINISHED'}
+
+        buttons = []
+        while len(data) > 7:
+            title = data.pop(0).replace('\n', '')
+            conditional = self.to_bool(data.pop(0))
+            ctrl = self.to_bool(data.pop(0))
+            alt = self.to_bool(data.pop(0))
+            shift = self.to_bool(data.pop(0))
+            oskey = self.to_bool(data.pop(0))
+            shortcut = data.pop(0).replace('\n', '')
+            script = data.pop(0).replace('\n', '')
+            button_data = [title, conditional, ctrl, alt, shift, oskey, shortcut, script]
+            buttons.append(button_data)
+
+        if buttons:
+            oldpanel.clear()
+            for button_data in buttons:
+                button = oldpanel.add()
+                title, conditional, ctrl, alt, shift, oskey, shortcut, script = button_data
+                button.title = title
+                button.conditional = conditional
+                button.ctrl = ctrl
+                button.alt = alt
+                button.shift = shift
+                button.oskey = oskey
+                button.shortcut = shortcut
+                button.script = script
+                try:
+                    file = open(button.script, 'r')
+                    requirement = file.readline().strip("\n\r")
+                    file.close()
+                    if requirement[0] == "#":
+                        button.requirement = requirement[1:]
+                except:
+                    pass
+            self.report({'INFO'}, "Loaded layout from file: "+self.filepath)
+        else:
+            self.report({'WARNING'}, "No buttons found in file: "+self.filepath)
+        return {'FINISHED'}
+
+    def execute_old(self, context):
         try:
             file = open(self.filepath, "r")
             data = file.readlines()
@@ -169,8 +335,7 @@ class ScriptShortcutLoad(bpy.types.Operator, ImportHelper):
                             title = line.replace('\n', '')
                             element = 'conditional'
                         elif element == 'conditional':
-                            if line.replace('\n', '') == 'True':
-                                conditional = True
+                            conditional = self.to_bool(line)
                             element = 'script'
                         elif element == 'script':
                             button = oldpanel.add()
@@ -262,19 +427,22 @@ class ScriptShortcutRun(bpy.types.Operator):
 class ScriptShortcutRename(bpy.types.Operator):
     #This operator will rename an element in a shortcut panel
     bl_idname = "scriptshortcut.rename"
-    bl_label = "Rename Button Or Label"
+    bl_label = "Edit Button Or Label"
     bl_description = "Rename this item"
 
     argument: bpy.props.StringProperty()
     title: bpy.props.StringProperty(name='Title')
+    conditional: bpy.props.BoolProperty(name='Make This Button Conditional')
     script: bpy.props.StringProperty()
     index: bpy.props.IntProperty(0)
+    button = None
 
     def invoke(self, context, event):
         self.index = int(self.argument.split(',')[1])
         buttons = return_panel(context.scene, self.argument.split(',')[0])[1]
         self.button = buttons[self.index]
         self.title = self.button.title
+        self.conditional = self.button.conditional
         self.script = self.button.script
         return context.window_manager.invoke_props_dialog(self, width=600)
 
@@ -285,10 +453,79 @@ class ScriptShortcutRename(bpy.types.Operator):
         if self.script != '_':
             row = layout.row()
             row.operator("scriptshortcut.changescript", text="Select Script").argument = self.argument
+            row = layout.row()
+            row.prop(self, 'conditional')
+            row = layout.row()
+            row.label(text='Shortcut: '+format_shortcut(self.button))
+            row = layout.row()
+            row.operator("scriptshortcut.selectshortcut", text="Enter Shortcut Key").argument = self.argument
 
     def execute(self, context):
         self.button.title = self.title
+        self.button.conditional = self.conditional
         return {'FINISHED'}
+
+
+class ScriptShortcutSelectShortcut(bpy.types.Operator):
+    bl_idname = "scriptshortcut.selectshortcut"
+    bl_label = "Enter A Shortcut Key Combination For Script Shortcut"
+
+    argument: bpy.props.StringProperty()
+    index: bpy.props.IntProperty()
+    panel: bpy.props.StringProperty()
+    ctrl: bpy.props.BoolProperty()
+    alt: bpy.props.BoolProperty()
+    shift: bpy.props.BoolProperty()
+    oskey: bpy.props.BoolProperty()
+    shortcut: bpy.props.StringProperty()
+
+    def modal(self, context, event):
+        if event.type in {'RIGHTMOUSE', 'ESC', 'LEFTMOUSE', 'RET', 'NUMPAD_ENTER'}:
+            context.workspace.status_text_set(None)
+            return {'CANCELLED'}
+        if event.type in ['LEFT_CTRL', 'RIGHT_CTRL']:
+            if event.value == 'PRESS':
+                self.ctrl = True
+            else:
+                self.ctrl = False
+        elif event.type in ['LEFT_ALT', 'RIGHT_ALT']:
+            if event.value == 'PRESS':
+                self.alt = True
+            else:
+                self.alt = False
+        elif event.type in ['LEFT_SHIFT', 'RIGHT_SHIFT']:
+            if event.value == 'PRESS':
+                self.shift = True
+            else:
+                self.shift = False
+        elif event.type == 'OSKEY':
+            if event.value == 'PRESS':
+                self.oskey = True
+            else:
+                self.oskey = False
+        elif event.type not in {'MOUSEMOVE', 'MIDDLEMOUSE'} and event.value == 'PRESS':
+            context.workspace.status_text_set(None)
+            self.shortcut = event.type
+            buttons = return_panel(context.scene, self.panel)[1]
+            button = buttons[self.index]
+            button.alt = self.alt
+            button.ctrl = self.ctrl
+            button.shift = self.shift
+            button.oskey = self.oskey
+            button.shortcut = self.shortcut
+            return {'FINISHED'}
+        return {'RUNNING_MODAL'}
+
+    def invoke(self, context, event):
+        context.workspace.status_text_set("Press a key with or without modifier keys to set the shortcut for this button.")
+        self.ctrl = False
+        self.alt = False
+        self.shift = False
+        self.oskey = False
+        self.index = int(self.argument.split(',')[1])
+        self.panel = self.argument.split(',')[0]
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
 
 
 class ScriptShortcutChangeScript(bpy.types.Operator, ImportHelper):
@@ -526,7 +763,13 @@ class ScriptShortcutPresetActivate(bpy.types.Operator):
             newelement.title = button.title
             newelement.script = button.script
             newelement.conditional = button.conditional
+            newelement.ctrl = button.ctrl
+            newelement.alt = button.alt
+            newelement.shift = button.shift
+            newelement.oskey = button.oskey
+            newelement.shortcut = button.shortcut
             newelement.requirement = button.requirement
+        set_shortcuts()
         return {'FINISHED'}
 
 
@@ -579,6 +822,11 @@ class ScriptShortcutPresetAdd(bpy.types.Operator):
             newelement.title = button.title
             newelement.script = button.script
             newelement.conditional = button.conditional
+            newelement.ctrl = button.ctrl
+            newelement.alt = button.alt
+            newelement.shift = button.shift
+            newelement.oskey = button.oskey
+            newelement.shortcut = button.shortcut
             newelement.requirement = button.requirement
         self.newpreset.name = self.name
         return {'FINISHED'}
@@ -695,7 +943,7 @@ class ScriptShortcutPanelTemplate():
             row.menu('SS_MT_scriptshortcut_presetmenuedit', text='Panel Presets')
 
             row = layout.row()
-            row.label(text='Click A Button To Rename')
+            row.label(text='Click A Button To Edit It')
             for index, button in enumerate(buttons):
                 #Iterate through the elements and draw each one
                 row = layout.row()
@@ -714,12 +962,12 @@ class ScriptShortcutPanelTemplate():
                 #Remove element button
                 split.operator("scriptshortcut.remove", text="", icon="X").argument = panel+','+str(index)
 
-                if button.script == '_':
-                    #Spacer area to keep layout over the conditional property
-                    split.label(text="")
-                else:
-                    #Conditional mode checkbox property
-                    split.prop(button, 'conditional')
+                #if button.script == '_':
+                #    #Spacer area to keep layout over the conditional property
+                #    split.label(text="")
+                #else:
+                #    #Conditional mode checkbox property
+                #    split.prop(button, 'conditional')
 
             row = layout.row()
             split = row.split(align=True)
@@ -829,7 +1077,7 @@ classes = [ScriptShortcutSettings, ScriptShortcutPanelButton, ScriptShortcutPane
            ScriptShortcutPresetRename, SCRIPTSHORTCUT_PT_View3d, SCRIPTSHORTCUT_PT_GraphEditor,
            SCRIPTSHORTCUT_PT_NLAEditor, SCRIPTSHORTCUT_PT_ImageEditor, SCRIPTSHORTCUT_PT_SequenceEditor,
            SCRIPTSHORTCUT_PT_ClipEditor, SCRIPTSHORTCUT_PT_TextEditor, SCRIPTSHORTCUT_PT_NodeEditor,
-           ScriptShortcutShortcut]
+           ScriptShortcutShortcut, ScriptShortcutSelectShortcut]
 
 
 def register():
@@ -839,7 +1087,8 @@ def register():
     #bpy.utils.register_class(ScriptShortcutPanelTemplate)
     keymaps = bpy.context.window_manager.keyconfigs.addon.keymaps
     keymap = keymaps.new(name='Window', region_type='WINDOW', space_type='EMPTY')
-    addon_keymaps.append(keymap)
+    global addon_keymap_default
+    addon_keymap_default = keymap
     keymapitem = keymap.keymap_items.new('wm.call_menu', 'SPACE', 'PRESS', alt=True)
     keymapitem.properties.name = 'SS_MT_scriptshortcut_popup'
     keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', 'ONE', 'PRESS', alt=True)
@@ -864,14 +1113,17 @@ def register():
     keymapitem.properties.number = 10
 
     bpy.types.Scene.scriptshortcuts = bpy.props.PointerProperty(type=ScriptShortcutPanels)
+    remove_set_shortcuts_handler(True)
 
 
 def unregister():
     #bpy.utils.unregister_class(ScriptShortcutPanelTemplate)
+    remove_set_shortcuts_handler()
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    for keymap in addon_keymaps:
-        bpy.context.window_manager.keyconfigs.addon.keymaps.remove(keymap)
+    global addon_keymap_default
+    if addon_keymap_default:
+        bpy.context.window_manager.keyconfigs.addon.keymaps.remove(addon_keymap_default)
 
 
 if __name__ == "__main__":

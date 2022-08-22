@@ -31,8 +31,8 @@ bl_info = {
     "name": "Script Shortcut",
     "description": "Allows easily running of python scripts by adding a configurable shortcut panel to the Properties shelf of most areas.  Pressing a script button will execute commands directly in the script, and will run the 'register()' function if it exists.",
     "author": "Hudson Barkley (Snu)",
-    "version": (0, 6, 3),
-    "blender": (2, 92, 0),
+    "version": (0, 7, 0),
+    "blender": (3, 1, 0),
     "location": "Properties shelf in most areas, View menu in same areas, Alt-Space, and Alt-<#> shortcuts in most areas",
     "wiki_url": "none",
     "category": "Interface"
@@ -65,6 +65,11 @@ def set_shortcuts(self=None, context=None):
                     keymapitem = keymap.keymap_items.new('scriptshortcut.shortcut', button.shortcut, 'PRESS', ctrl=button.ctrl, alt=button.alt, shift=button.shift, oskey=button.oskey)
                     keymapitem.properties.number = index + 1
                     script_shortcut_addon_keymaps[keymap].append(keymapitem)
+
+
+def get_icons():
+    icons = bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items.keys()
+    return icons
 
 
 @persistent
@@ -169,6 +174,8 @@ class ScriptShortcutPanelButton(bpy.types.PropertyGroup):
         default=False)
     shortcut: bpy.props.StringProperty(
         default='')
+    icon: bpy.props.StringProperty(
+        default='')
 
 
 class ScriptShortcutPanel(bpy.types.PropertyGroup):
@@ -239,6 +246,7 @@ class ScriptShortcutSave(bpy.types.Operator, ImportHelper):
             file = open(self.filepath, 'w')
             for button in self.data:
                 file.write(button.title+'\n')
+                file.write(button.icon+'\n')
                 file.write(str(button.conditional)+'\n')
                 file.write(str(button.ctrl)+'\n')
                 file.write(str(button.alt)+'\n')
@@ -280,8 +288,9 @@ class ScriptShortcutLoad(bpy.types.Operator, ImportHelper):
             return {'FINISHED'}
 
         buttons = []
-        while len(data) > 7:
+        while len(data) > 8:
             title = data.pop(0).replace('\n', '')
+            icon = data.pop(0).replace('\n', '')
             conditional = self.to_bool(data.pop(0))
             ctrl = self.to_bool(data.pop(0))
             alt = self.to_bool(data.pop(0))
@@ -289,15 +298,16 @@ class ScriptShortcutLoad(bpy.types.Operator, ImportHelper):
             oskey = self.to_bool(data.pop(0))
             shortcut = data.pop(0).replace('\n', '')
             script = data.pop(0).replace('\n', '')
-            button_data = [title, conditional, ctrl, alt, shift, oskey, shortcut, script]
+            button_data = [title, icon, conditional, ctrl, alt, shift, oskey, shortcut, script]
             buttons.append(button_data)
 
         if buttons:
             oldpanel.clear()
             for button_data in buttons:
                 button = oldpanel.add()
-                title, conditional, ctrl, alt, shift, oskey, shortcut, script = button_data
+                title, icon, conditional, ctrl, alt, shift, oskey, shortcut, script = button_data
                 button.title = title
+                button.icon = icon
                 button.conditional = conditional
                 button.ctrl = ctrl
                 button.alt = alt
@@ -432,6 +442,7 @@ class ScriptShortcutRename(bpy.types.Operator):
 
     argument: bpy.props.StringProperty()
     title: bpy.props.StringProperty(name='Title')
+    icon: bpy.props.StringProperty(name='Icon')
     conditional: bpy.props.BoolProperty(name='Make This Button Conditional')
     script: bpy.props.StringProperty()
     index: bpy.props.IntProperty(0)
@@ -442,6 +453,7 @@ class ScriptShortcutRename(bpy.types.Operator):
         buttons = return_panel(context.scene, self.argument.split(',')[0])[1]
         self.button = buttons[self.index]
         self.title = self.button.title
+        self.icon = self.button.icon
         self.conditional = self.button.conditional
         self.script = self.button.script
         return context.window_manager.invoke_props_dialog(self, width=600)
@@ -462,7 +474,72 @@ class ScriptShortcutRename(bpy.types.Operator):
 
     def execute(self, context):
         self.button.title = self.title
+        self.button.icon = self.icon
         self.button.conditional = self.conditional
+        return {'FINISHED'}
+
+
+class ScriptShortcutSelectIcon(bpy.types.Operator):
+    bl_idname = 'scriptshortcut.selecticon'
+    bl_label = "Select Icon"
+    
+    argument: bpy.props.StringProperty()
+    icon: bpy.props.StringProperty(name='Icon')
+    index: bpy.props.IntProperty(0)
+    panel: bpy.props.StringProperty()
+    button = None
+
+    def invoke(self, context, event):
+        self.index = int(self.argument.split(',')[1])
+        self.panel = self.argument.split(',')[0]
+        buttons = return_panel(context.scene, self.panel)[1]
+        self.button = buttons[self.index]
+        self.icon = self.button.icon
+        return context.window_manager.invoke_props_dialog(self, width=640)
+
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row()
+        icons = get_icons()
+        max_cols = 25
+        col_index = max_cols
+        for icon in icons:
+            argument = self.argument + ',' + icon
+            if icon == 'NONE':
+                row.operator("scriptshortcut.confirmicon", text="No Icon").argument = argument
+                col_index = max_cols
+            else:
+                row.operator("scriptshortcut.confirmicon", text="", icon=icon).argument = argument
+
+            if col_index >= max_cols:
+                col_index = 0
+                row = layout.row()
+                row.alignment = 'CENTER'
+            col_index += 1
+
+    def execute(self, context):
+        self.button.icon = self.icon
+        return {'FINISHED'}
+
+
+class ScriptShortcutConfirmIcon(bpy.types.Operator):
+    bl_idname = 'scriptshortcut.confirmicon'
+    bl_label = "Select Icon"
+
+    argument: bpy.props.StringProperty()
+    index: bpy.props.IntProperty(0)
+    icon: bpy.props.StringProperty()
+    panel: bpy.props.StringProperty()
+
+    def invoke(self, context, event):
+        panel, index, icon = self.argument.split(',')
+        index = int(index)
+        buttons = return_panel(context.scene, panel)[1]
+        button = buttons[index]
+        if icon == 'NONE':
+            button.icon = ''
+        else:
+            button.icon = icon
         return {'FINISHED'}
 
 
@@ -590,8 +667,10 @@ class ScriptShortcutAdd(bpy.types.Operator):
         if self.type == "button":
             return bpy.ops.scriptshortcut.selectscript('INVOKE_DEFAULT', panel=self.argument.split(',')[0])
         elif self.type == "label":
-            self.title = "Label"
-            return context.window_manager.invoke_props_dialog(self, width=600)
+            button = buttons.add()
+            button.title = 'Label'
+            button.script = '_'
+            return bpy.ops.scriptshortcut.rename('INVOKE_DEFAULT', argument=self.panel + ',' + str(len(buttons) - 1))
         else:
             button = buttons.add()
             button.title = '_'
@@ -661,6 +740,7 @@ class ScriptShortcutPopup(bpy.types.Menu):
         layout = self.layout
         area_type = context.area.type
         panel = return_panel(context.scene, area_type)[1]
+        icons = get_icons()
 
         for index, button in enumerate(panel):
             #Iterate through the elements and draw each one
@@ -672,11 +752,17 @@ class ScriptShortcutPopup(bpy.types.Menu):
                     row.label(text="")
                 else:
                     #This element is a label
-                    row.label(text=button.title)
+                    if button.icon in icons:
+                        row.label(text=button.title, icon=button.icon)
+                    else:
+                        row.label(text=button.title)
 
             else:
                 #This element is a button
-                row.operator("scriptshortcut.run", text=button.title).path = button.script
+                if button.icon in icons:
+                    row.operator("scriptshortcut.run", text=button.title, icon=button.icon).path = button.script
+                else:
+                    row.operator("scriptshortcut.run", text=button.title).path = button.script
 
                 #Check if this button is conditional and should be disabled
                 if button.conditional and len(button.requirement) > 0:
@@ -761,6 +847,7 @@ class ScriptShortcutPresetActivate(bpy.types.Operator):
         for button in preset:
             newelement = buttons.add()
             newelement.title = button.title
+            newelement.icon = button.icon
             newelement.script = button.script
             newelement.conditional = button.conditional
             newelement.ctrl = button.ctrl
@@ -820,6 +907,7 @@ class ScriptShortcutPresetAdd(bpy.types.Operator):
         for button in currentpanel:
             newelement = self.newpreset.panel.add()
             newelement.title = button.title
+            newelement.icon = button.icon
             newelement.script = button.script
             newelement.conditional = button.conditional
             newelement.ctrl = button.ctrl
@@ -841,7 +929,7 @@ class ScriptShortcutPresetRemove(bpy.types.Operator):
     argument: bpy.props.StringProperty()
 
     def execute(self, context):
-        panel = self.argument.split(',',1)[1]
+        panel = self.argument.split(',', 1)[1]
         index = int(self.argument.split(',')[0])
         paneldata = return_panel(context.scene, panel)
         presets = paneldata[2]
@@ -930,6 +1018,7 @@ class ScriptShortcutPanelTemplate():
     def draw(self, context):
         panel = self.bl_space_type
         layout = self.layout
+        icons = get_icons()
 
         #Get the panel data thats stored in the scene properties
         paneldata = return_panel(context.scene, panel)
@@ -947,27 +1036,26 @@ class ScriptShortcutPanelTemplate():
             for index, button in enumerate(buttons):
                 #Iterate through the elements and draw each one
                 row = layout.row()
-                split = row.split(factor=.6, align=True)
+                split = row.split(factor=0.1, align=True)
                 if button.script == '_' and button.title == '_':
                     #This element is a spacer
+                    split.label(text="")
                     split.label(text="<Spacer>")
                 else:
                     #This element is a label or button
+                    if button.icon in icons:
+                        split.operator("scriptshortcut.selecticon", text="", icon=button.icon).argument = panel + ',' + str(index)
+                    else:
+                        split.operator("scriptshortcut.selecticon", text="Icon").argument = panel + ',' + str(index)
                     split.operator("scriptshortcut.rename", text=button.title).argument = panel+','+str(index)
 
                 #Move up button
+                split = split.split(align=True)
                 split.operator("scriptshortcut.move", text="", icon="TRIA_UP").argument = panel+','+str(index)+','+'up'
                 #Move down button
                 split.operator("scriptshortcut.move", text="", icon="TRIA_DOWN").argument = panel+','+str(index)+','+'down'
                 #Remove element button
                 split.operator("scriptshortcut.remove", text="", icon="X").argument = panel+','+str(index)
-
-                #if button.script == '_':
-                #    #Spacer area to keep layout over the conditional property
-                #    split.label(text="")
-                #else:
-                #    #Conditional mode checkbox property
-                #    split.prop(button, 'conditional')
 
             row = layout.row()
             split = row.split(align=True)
@@ -1001,11 +1089,17 @@ class ScriptShortcutPanelTemplate():
                         row.label(text="")
                     else:
                         #This element is a label
-                        row.label(text=button.title)
+                        if button.icon in icons:
+                            row.label(text=button.title, icon=button.icon)
+                        else:
+                            row.label(text=button.title)
 
                 else:
                     #This element is a button
-                    row.operator("scriptshortcut.run", text=button.title).path = button.script
+                    if button.icon in icons:
+                        row.operator("scriptshortcut.run", text=button.title, icon=button.icon).path = button.script
+                    else:
+                        row.operator("scriptshortcut.run", text=button.title).path = button.script
 
                     #Check if this button is conditional and should be disabled
                     if button.conditional and len(button.requirement) > 0:
@@ -1077,7 +1171,7 @@ classes = [ScriptShortcutSettings, ScriptShortcutPanelButton, ScriptShortcutPane
            ScriptShortcutPresetRename, SCRIPTSHORTCUT_PT_View3d, SCRIPTSHORTCUT_PT_GraphEditor,
            SCRIPTSHORTCUT_PT_NLAEditor, SCRIPTSHORTCUT_PT_ImageEditor, SCRIPTSHORTCUT_PT_SequenceEditor,
            SCRIPTSHORTCUT_PT_ClipEditor, SCRIPTSHORTCUT_PT_TextEditor, SCRIPTSHORTCUT_PT_NodeEditor,
-           ScriptShortcutShortcut, ScriptShortcutSelectShortcut]
+           ScriptShortcutShortcut, ScriptShortcutSelectShortcut, ScriptShortcutSelectIcon, ScriptShortcutConfirmIcon]
 
 
 def register():

@@ -1,4 +1,4 @@
-# Script Shortcut Addon For Blender 2.92
+# Script Shortcut Addon For Blender
 
 ## Features:
 * Easily load python scripts as a button in Blender's interface
@@ -24,7 +24,6 @@ Or support me by hiring Creative Life Productions if you have a need for the ser
 
 
 # Installation:
-* Use the 'Branch' menu on the upper-left to select the branch for your Blender version
 * Download 'ScriptShortcut.py', or download the latest zip and extract this file.
 * You may wish to extract the 'buttons' folder into a location where it can easily be loaded from later.
 * Open Blender, and from the 'Edit' menu, select 'Preferences'.
@@ -54,6 +53,7 @@ You will now be prompted to rename the button.
 * Click the 'OK' button to confirm the new button.  
 
 You should now see the new button in the list.
+* Click the 'Icon' button to change the display icon.
 * Click the button name to rename it or change the script.
 * Click the up or down arrows to move the button up or down in the list.
 * Click the 'X' button to delete the button.
@@ -67,6 +67,7 @@ Rename the label in the dialog that opens, and click 'OK' to finish.
 
 You should now see the new label in the list.
 * Like buttons, labels can be renamed by clicking them.
+* Click the 'Icon' button to change the display icon.
 * Use the up and down arrows to move the label.
 * Delete the label with the 'X' button.
 
@@ -169,3 +170,9 @@ See the 'test.py' file in the buttons directory for some example code.
 ### 0.6.1  
    * Ported to Blender 2.8
    * Changed shortcuts
+
+### 0.6.3
+    * Added custom shortcuts
+
+### 0.7
+    * Added button and label icons.  Unfortunately, this will break any saved panels you have
